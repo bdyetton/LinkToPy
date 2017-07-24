@@ -1,9 +1,9 @@
 # link-to-py #
-A python 3 module for interfacing with Ableton Link.
+A python 3 module for interfacing with Ableton Link via [Carabiner](https://github.com/brunchboy/carabiner).
 
 ## Installation ##
 
-    Clone repo, or download file, and place in your python path
+Clone repo, or download file, and place in your python path
     
 ## Requires ##
 
