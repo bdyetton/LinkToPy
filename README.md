@@ -3,7 +3,7 @@ A python 3 module for interfacing with Ableton Link via [Carabiner](https://gith
 
 ## Installation ##
 
-Clone repo, or download file, and place in your python path
+    pip install link-to-py
     
 ## Requires ##
 
