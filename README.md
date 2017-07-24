@@ -1,9 +1,9 @@
-# link-to-py #
+# LinkToPy #
 A python 3 module for interfacing with Ableton Link via [Carabiner](https://github.com/brunchboy/carabiner).
 
 ## Installation ##
 
-    pip install link-to-py
+    pip install LinkToPy
     
 ## Requires ##
 
@@ -14,7 +14,7 @@ A python 3 module for interfacing with Ableton Link via [Carabiner](https://gith
 
 ```pycon
 >>> import LinkToPy
->>> link = LinkToPy()
+>>> link = LinkToPy.LinkListener()
 >>> print(link.status())
 {'peers': 0, 'bpm': 120.0, 'start': 4244833794, 'beat': 9810.891852}
 ```
