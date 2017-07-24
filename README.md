@@ -1,5 +1,5 @@
 # LinkToPy #
-A python 3 module for interfacing with Ableton Link via [Carabiner](https://github.com/brunchboy/carabiner).
+A python module for interfacing with Ableton Link via [Carabiner](https://github.com/brunchboy/carabiner).
 
 ## Installation ##
 
@@ -13,7 +13,7 @@ A python 3 module for interfacing with Ableton Link via [Carabiner](https://gith
 
 ```pycon
 >>> import LinkToPy
->>> link = LinkToPy.LinkInterface()
+>>> link = LinkToPy.LinkInterface(<path_to_carabiner>)
 >>> print(link.bpm_)
 120.0
 ```
@@ -21,9 +21,9 @@ A python 3 module for interfacing with Ableton Link via [Carabiner](https://gith
 ## About ##
 
 This module provides a wrapper for Carabiner, a TCP based connector for Ableton Link. link-to-py communicates via TCP to Carabiner, which in turn listens and controls Link.
-Carabiner must be running on your system to use this module. 
+Carabiner must build on your system to use this module and will be run automatically by this module.
 
-Tested on Linux only (unbuntu and raspbian)
+Tested on Linux, python 2.7 and 3.6 (unbuntu and raspbian).
 
 ## API ##
 
