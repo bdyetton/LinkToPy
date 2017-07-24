@@ -7,7 +7,7 @@ setup(
   author = 'Ben Yetton',
   author_email = 'bdyetton@gmail.com',
   url = 'https://github.com/bdyetton/LinkToPy', # use the URL to the github repo
-  download_url = 'https://github.com/bdyetton/LinkToPy/dist/0.1.tar.gz', # I'll explain this in a second
+  download_url = 'https://github.com/bdyetton/LinkToPy/dist/LinkToPy-0.1.tar.gz', # I'll explain this in a second
   keywords = ['link','python','lighting' ,'serato', 'abelton'], # arbitrary keywords
   classifiers = [],
 )
