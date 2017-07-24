@@ -7,7 +7,6 @@ A python 3 module for interfacing with Ableton Link via [Carabiner](https://gith
     
 ## Requires ##
 
-- [edn_format](https://github.com/swaroopch/edn_format)
 - [Carabiner](https://github.com/brunchboy/carabiner)
 
 ## Usage ##
@@ -15,8 +14,8 @@ A python 3 module for interfacing with Ableton Link via [Carabiner](https://gith
 ```pycon
 >>> import LinkToPy
 >>> link = LinkToPy.LinkListener()
->>> print(link.status())
-{'peers': 0, 'bpm': 120.0, 'start': 4244833794, 'beat': 9810.891852}
+>>> print(link.bpm_)
+120.0
 ```
 
 ## About ##
