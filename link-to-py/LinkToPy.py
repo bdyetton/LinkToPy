@@ -2,8 +2,6 @@ import socket
 import edn_format
 import numpy as np
 import time
-import os
-
 
 class LinkListener():
     """A simple python client to communicate with carabiner (a Abelton Link connector)
@@ -117,6 +115,6 @@ class LinkListener():
 
 if __name__ == "__main__":
     link = LinkListener()
-    status = link.status()
+    print(link.status())
 
     link.test_timer()
