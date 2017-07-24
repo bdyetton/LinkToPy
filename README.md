@@ -13,7 +13,7 @@ A python 3 module for interfacing with Ableton Link via [Carabiner](https://gith
 
 ```pycon
 >>> import LinkToPy
->>> link = LinkToPy.LinkListener()
+>>> link = LinkToPy.LinkInterface()
 >>> print(link.bpm_)
 120.0
 ```
