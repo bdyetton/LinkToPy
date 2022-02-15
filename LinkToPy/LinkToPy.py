@@ -93,6 +93,28 @@ class LinkInterface():
         if callback is not None:
             self.callbacks['request-beat-at-time'] = callback
 
+    def enable_start_stop_sync(self, callback=None):
+        self.s.send(b'enable-start-stop-sync')
+        if callback is not None:
+            self.callbacks['enable-start-stop-sync'] = callback
+
+    def disable_start_stop_sync(self, callback=None):
+        self.s.send(b'disable-start-stop-sync')
+        if callback is not None:
+            self.callbacks['disable-start-stop-sync'] = callback
+
+    def start_playing(self, time_in_ms, callback=None):
+        msg = 'start-playing ' + str(time_in_ms)
+        self.s.send(msg.encode())
+        if callback is not None:
+            self.callbacks['start-playing'] = callback
+
+    def stop_playing(self, time_in_ms, callback=None):
+        msg = 'stop-playing ' + str(time_in_ms)
+        self.s.send(msg.encode())
+        if callback is not None:
+            self.callbacks['stop-playing'] = callback
+
     # def time_of_next_beat(self, quantum=8):
     #     """Returns a tuple (beat, time) that specifies the next whole beat number at its time,
     #     in ms (for the given quantum) - this needs work..."""
