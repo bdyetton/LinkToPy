@@ -36,9 +36,12 @@ class LinkInterface():
     def decode_edn_msg(self, msg):
         """Decodes a TCP message from Carabiner to python dictionary"""
         msg = msg.decode()
-        msg_type = msg[:msg.index(' {')]
-        striped_msg = msg[msg.index('{'):]
-        decoded_msg = edn_format.loads(striped_msg, write_ply_tables=False)
+        msg_type = msg[:msg.index(' ')]
+        try:
+            striped_msg = msg[msg.index('{'):]
+            decoded_msg = edn_format.loads(striped_msg, write_ply_tables=False)
+        except:
+            decoded_msg = ""
 
         # Because the edn_format package does not return normal dam dicts (or string keywords). What dicts.
         if type(decoded_msg) is edn_format.immutable_dict.ImmutableDict:
