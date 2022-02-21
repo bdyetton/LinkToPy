@@ -235,7 +235,10 @@ class LinkInterface():
             except BrokenPipeError:
                 break
 
-            msg_type, msg_data = self.decode_edn_msg(msg)
+            if msg:
+                msg_type, msg_data = self.decode_edn_msg(msg)
+            else:
+                msg_type = ''
 
             if msg_type == 'status':
                 self.bpm_ = msg_data['bpm']
