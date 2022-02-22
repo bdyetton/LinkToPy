@@ -26,6 +26,7 @@ class LinkInterface():
         else:
             self.callbacks = callbacks
 
+        self.terminated = threading.Event()
         self.start_carabiner_and_open_socket(path_to_carabiner)
 
         thread = threading.Thread(target=self._listener)
@@ -51,70 +52,103 @@ class LinkInterface():
 
     def status(self, callback=None):
         """Wrapper for Status"""
-        self.s.send(b'status\n')
+        try:
+            self.s.send(b'status\n')
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['status'] = callback
 
     def set_bpm(self, bpm, callback=None):
         """Wrapper for bpm"""
         msg = 'bpm ' + str(bpm) + '\n'
-        self.s.send(msg.encode())
+        try:
+            self.s.send(msg.encode())
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['bpm'] = callback
 
     def beat_at_time(self, time_in_ms, quantum=8, callback=None):
         """Wrapper for Beat At Time"""
         msg = 'beat-at-time ' + str(time_in_ms) + ' ' + str(quantum) + '\n'
-        self.s.send(msg.encode())
+        try:
+            self.s.send(msg.encode())
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['beat-at-time'] = callback
 
     def time_at_beat(self, beat, quantum=8, callback=None):
         """Wrapper for Time At Beat"""
         msg = 'time-at-beat ' + str(beat) + ' ' + str(quantum) + '\n'
-        self.s.send(msg.encode())
+        try:
+            self.s.send(msg.encode())
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['time-at-beat'] = callback
 
     def phase_at_time(self, time_in_ms, quantum=8, callback=None):
         """Wrapper for Phase At Time"""
         msg = 'phase-at-time ' + str(time_in_ms) + ' ' + str(quantum) + '\n'
-        self.s.send(msg.encode())
+        try:
+            self.s.send(msg.encode())
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['phase-at-time'] = callback
 
     def force_beat_at_time(self, beat, time_in_ms, quantum=8, callback=None):
         """Wrapper for Beat At Time"""
         msg = 'force-beat-at-time ' + str(beat) + ' ' + str(time_in_ms) + ' ' + str(quantum) + '\n'
-        self.s.send(msg.encode())
+        try:
+            self.s.send(msg.encode())
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['force-beat-at-time'] = callback
 
     def request_beat_at_time(self, beat, time_in_ms, quantum=8, callback=None):
         msg = 'request-beat-at-time ' + str(beat) + ' ' + str(time_in_ms) + ' ' + str(quantum) + '\n'
-        self.s.send(msg.encode())
+        try:
+            self.s.send(msg.encode())
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['request-beat-at-time'] = callback
 
     def enable_start_stop_sync(self, callback=None):
-        self.s.send(b'enable-start-stop-sync\n')
+        try:
+            self.s.send(b'enable-start-stop-sync\n')
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['enable-start-stop-sync'] = callback
 
     def disable_start_stop_sync(self, callback=None):
-        self.s.send(b'disable-start-stop-sync\n')
+        try:
+            self.s.send(b'disable-start-stop-sync\n')
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['disable-start-stop-sync'] = callback
 
     def start_playing(self, time_in_ms, callback=None):
         msg = 'start-playing ' + str(time_in_ms) + '\n'
-        self.s.send(msg.encode())
+        try:
+            self.s.send(msg.encode())
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['start-playing'] = callback
 
     def stop_playing(self, time_in_ms, callback=None):
         msg = 'stop-playing ' + str(time_in_ms) + '\n'
-        self.s.send(msg.encode())
+        try:
+            self.s.send(msg.encode())
+        except BrokenPipeError:
+            return
         if callback is not None:
             self.callbacks['stop-playing'] = callback
 
@@ -154,12 +188,22 @@ class LinkInterface():
         return int(time.monotonic() * 1000 * 1000)
 
     def start_carabiner(self, path_to_car):
-        print(path_to_car)
-        os.system(path_to_car +" >car_logs.log")
+        if os.access(path_to_car, os.X_OK):
+            print('Starting Carabiner: %s' % path_to_car)
+            pid = os.system(path_to_car +" >car_logs.log")
+            self.terminated.clear()
+
+            while True:
+                time.sleep(0.1)
+                try:
+                    os.kill(pid, 0)
+                except OSError:
+                    break
+
+            print('Carabiner terminated')
+            self.terminated.set()
 
     def start_carabiner_and_open_socket(self, carabiner_path):
-        thread = threading.Thread(target=self.start_carabiner, args=[carabiner_path])
-        thread.start()
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         not_connected = True
@@ -173,6 +217,11 @@ class LinkInterface():
                     # Not the error we are looking for, re-raise
                     raise serr
                 not_connected_ticker += 1
+
+                if not_connected_ticker == 10:
+                    thread = threading.Thread(target=self.start_carabiner, args=[carabiner_path])
+                    thread.start()
+
                 if not_connected_ticker > 30:
                     warnings.warn('Socket Connection Timeout, Carabiner could not be started')
                     break
@@ -180,9 +229,16 @@ class LinkInterface():
                 time.sleep(0.1)
 
     def _listener(self):
-        while True:
-            msg = self.s.recv(self._buffer_size)
-            msg_type, msg_data = self.decode_edn_msg(msg)
+        while not self.terminated.isSet():
+            try:
+                msg = self.s.recv(self._buffer_size)
+            except BrokenPipeError:
+                break
+
+            if msg:
+                msg_type, msg_data = self.decode_edn_msg(msg)
+            else:
+                msg_type = ''
 
             if msg_type == 'status':
                 self.bpm_ = msg_data['bpm']
@@ -194,6 +250,8 @@ class LinkInterface():
 
             if msg_type in self.callbacks:
                 self.callbacks[msg_type](msg_data)
+
+        self.terminated.set()
 
     def __del__(self):
         self.s.close()
